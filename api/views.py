@@ -6,8 +6,9 @@ from rest_framework import filters
 from django.http import Http404
 from rest_framework.pagination import PageNumberPagination
 
-from .models import Post
-from .serializers import PostSerializer
+from .models import Post, Comment
+from .serializers import PostSerializer, CommentSerializer
+from django.shortcuts import get_object_or_404
 
 # Create your views here.
 class PostList(APIView):
@@ -68,5 +69,14 @@ class PostDetail(APIView):
         post = self.get_object(pk)
         post.delete()
         return Response(status = status.HTTP_204_NO_CONTENT)
-    
+
+class CommentCreateView(APIView):
+    def post(self, request, post_pk, format = None):
+        post = get_object_or_404(Post, pk=post_pk)
+
+        serializer = CommentSerializer(data = request.data)
+        if serializer.is_valid():
+            serializer.save(post = post)
+            return Response(serializer.data, status = status.HTTP_201_CREATED)
+        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST) 
     
