@@ -70,6 +70,21 @@ class PostDetail(APIView):
         post.delete()
         return Response(status = status.HTTP_204_NO_CONTENT)
 
+class PostLikeView(APIView):
+    def post(self, request, pk, format = None):
+        post = get_object_or_404(Post, pk=pk)
+        user = request.user
+
+        if post.likes.filter(pk = user.pk).exists():
+            post.likes.remove(user)
+            message = 'Post unliked successfully.'
+        else:
+            post.likes.add(user)
+            message = 'Post liked successfully.'
+        
+        return Response({"detail": message}, status = status.HTTP_200_OK)
+
+
 class CommentCreateView(APIView):
     def post(self, request, post_pk, format = None):
         post = get_object_or_404(Post, pk=post_pk)
@@ -79,4 +94,3 @@ class CommentCreateView(APIView):
             serializer.save(post = post, author = request.user)
             return Response(serializer.data, status = status.HTTP_201_CREATED)
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST) 
-    

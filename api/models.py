@@ -9,6 +9,7 @@ class Post(models.Model):
     created_datetime = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=255)
     content = models.TextField()
+    likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)
 
     class Meta:
         ordering = ['-created_datetime']
