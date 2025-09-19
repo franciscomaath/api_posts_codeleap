@@ -41,7 +41,7 @@ class PostList(APIView):
     def post(self, request, format=None):
         serializer = PostSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(author = request.user)
             return Response(serializer.data, status = status.HTTP_201_CREATED)
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
     
@@ -73,10 +73,10 @@ class PostDetail(APIView):
 class CommentCreateView(APIView):
     def post(self, request, post_pk, format = None):
         post = get_object_or_404(Post, pk=post_pk)
-
         serializer = CommentSerializer(data = request.data)
+
         if serializer.is_valid():
-            serializer.save(post = post)
+            serializer.save(post = post, author = request.user)
             return Response(serializer.data, status = status.HTTP_201_CREATED)
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST) 
     
