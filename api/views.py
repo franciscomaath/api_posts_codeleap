@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404
+from rest_framework.pagination import PageNumberPagination
 
 from .models import Post
 from .serializers import PostSerializer
@@ -11,8 +12,10 @@ from .serializers import PostSerializer
 class PostList(APIView):
     def get(self, request, format=None):
         posts = Post.objects.all()
+        paginator = PageNumberPagination()
+        paginated_posts = paginator.paginate_queryset(posts, request, view=self)
         serializer = PostSerializer(posts, many=True)
-        return Response(serializer.data)
+        return paginator.get_paginated_response(serializer.data)
 
     def post(self, request, format=None):
         serializer = PostSerializer(data=request.data)
