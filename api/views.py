@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework import filters
 from django.http import Http404
 from rest_framework.pagination import PageNumberPagination
 
@@ -12,8 +13,27 @@ from .serializers import PostSerializer
 class PostList(APIView):
     def get(self, request, format=None):
         posts = Post.objects.all()
+
+        # filtering and ordering
+        search_filter = filters.SearchFilter()
+        ordering_filter = filters.OrderingFilter()
+
+        self.search_fields = ['title', 'content']
+        self.ordering_fields = ['created_datetime', 'title']
+
+        # read '?search=' and '?ordering=' from URL
+        filtered_posts = search_filter.filter_queryset(request, posts, self)
+        ordered_posts = search_filter.filter_queryset(request, filtered_posts, self)
+
+        # pagination
         paginator = PageNumberPagination()
-        paginated_posts = paginator.paginate_queryset(posts, request, view=self)
+        paginated_posts = paginator.paginate_queryset(ordered_posts, request, view=self)
+
+        if paginated_posts is not None:
+            serializer = PostSerializer(paginated_posts, many = True)
+            return paginator.get_paginated_response(serializer.data)
+
+        # return empty list if page is empty
         serializer = PostSerializer(posts, many=True)
         return paginator.get_paginated_response(serializer.data)
 
