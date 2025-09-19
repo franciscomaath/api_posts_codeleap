@@ -113,6 +113,6 @@ A URL base para os recursos principais é `/careers/`.
 
 ## Autor
 
-Feito por **Francisco Maath**.
+Feito por **Francisco Matheus**.
 
 [![GitHub](https://img.shields.io/badge/GitHub-franciscomaath-blue?logo=github)](https://github.com/franciscomaath)
